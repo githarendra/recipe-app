@@ -45,7 +45,7 @@ const BrowsePage = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search recipes or ingredients..."
+            placeholder="Search recipes..."
             className="flex-1 px-4 py-2.5 rounded-full border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
           />
           <button

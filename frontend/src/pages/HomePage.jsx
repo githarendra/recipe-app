@@ -15,7 +15,7 @@ const HomePage = () => {
   const { user } = useAuth()
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
-  const { recipes, loading } = useRecipes({ limit: 6 })
+  const { recipes, loading } = useRecipes({ limit: 3 })
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -57,7 +57,7 @@ const HomePage = () => {
           </h1>
 
           <p className="text-lg text-zinc-700 dark:text-zinc-400 mb-8">
-            Discover thousands of recipes from home cooks around the world.
+            Discover thousands of recipes from cooks around the world.
           </p>
 
           {/* Search */}

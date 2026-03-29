@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { saveRecipe } from '../api/users.js'
 import { useAuth } from '../context/AuthContext'
 
-const RecipeCard = ({ recipe, savedIds = [] }) => {
-  const { user } = useAuth()
-  const [isSaved, setIsSaved] = useState(savedIds.includes(recipe._id))
+const RecipeCard = ({ recipe }) => {
+  const { user, savedIds, toggleSaved } = useAuth()
   const [saving, setSaving] = useState(false)
+
+  const isSaved = savedIds.includes(recipe._id)
+  const isOwner = user && user._id === recipe.author?._id
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -16,7 +18,7 @@ const RecipeCard = ({ recipe, savedIds = [] }) => {
     setSaving(true)
     try {
       const { data } = await saveRecipe(recipe._id)
-      setIsSaved(data.saved)
+      toggleSaved(recipe._id, data.saved)
     } catch (err) {
       console.error(err)
     } finally {
@@ -43,8 +45,8 @@ const RecipeCard = ({ recipe, savedIds = [] }) => {
               </div>
             )}
 
-            {/* Save button */}
-            {user && user._id !== recipe.author?._id &&(
+            {/* Save button — hide for own recipes */}
+            {user && !isOwner && (
               <button
                 onClick={handleSave}
                 disabled={saving}
@@ -83,8 +85,19 @@ const RecipeCard = ({ recipe, savedIds = [] }) => {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-xs font-medium text-orange-600 dark:text-orange-400">
-                  {recipe.author?.name?.charAt(0).toUpperCase()}
+                {/* Fixed author avatar */}
+                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
+                  {recipe.author?.avatar ? (
+                    <img
+                      src={recipe.author.avatar}
+                      alt={recipe.author.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-xs font-medium text-orange-600 dark:text-orange-400">
+                      {recipe.author?.name?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
                 <span className="text-xs text-zinc-400 dark:text-zinc-500">
                   {recipe.author?.name}
