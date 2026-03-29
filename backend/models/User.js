@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: '',  // store the image filename
         },
+
+        savedRecipes: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref : 'Recipe'
+        }]
     }
 );
 

@@ -1,5 +1,5 @@
+import cloudinary from '../config/cloudinary.js'
 import Recipe from "../models/Recipe.js";
-import { uploadToCloudinary } from "../middleware/upload.js";
 
 export const getRecipes = async (req,res) => {
     try {
@@ -49,33 +49,38 @@ export const getRecipeById = async (req,res) => {
     }
 };
 
-export const createRecipe = async (req,res) => {
-    try {
-        const {title, description, ingredients, steps, cookingTime, servings, category} = req.body;
-        let image = '';
-        if(req.file){
-            const result = await uploadToCloudinary(req.file.buffer);
-            image = result.secure_url;
-        }
-        const recipe = await Recipe.create({
-            title,
-            description,
-            ingredients: JSON.parse(ingredients), 
-            steps: JSON.parse(steps),
-            cookingTime,
-            servings,
-            category,
-            image,
-            author: req.user._id,
-        });
+export const createRecipe = async (req, res) => {
+  try {
+    const { title, description, ingredients, steps, cookingTime, servings, category } = req.body
 
-        await recipe.populate('author','name avatar');
-        res.status(201).json(recipe);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    let image = ''
+    if (req.file) {
+      const buffer = Buffer.isBuffer(req.file.buffer)
+        ? req.file.buffer
+        : Buffer.from(req.file.buffer)
+      const dataUri = `data:${req.file.mimetype};base64,${buffer.toString('base64')}`
+      const result = await cloudinary.uploader.upload(dataUri, { folder: 'recipe-app' })
+      image = result.secure_url
     }
-};
 
+    const recipe = await Recipe.create({
+      title,
+      description,
+      ingredients: JSON.parse(ingredients),
+      steps: JSON.parse(steps),
+      cookingTime,
+      servings,
+      category,
+      image,
+      author: req.user._id,
+    })
+
+    await recipe.populate('author', 'name avatar')
+    res.status(201).json(recipe)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
 
 export const updateRecipe = async (req, res) => {
   try {
@@ -91,10 +96,14 @@ export const updateRecipe = async (req, res) => {
 
     const { title, description, ingredients, steps, cookingTime, servings, category } = req.body;
 
-    let image = recipe.image;
-    if(req.file){
-        const result = await uploadToCloudinary(req.file.buffer);
-        image = result.secure_url;
+    let image = recipe.image
+    if (req.file) {
+    const buffer = Buffer.isBuffer(req.file.buffer)
+    ? req.file.buffer
+    : Buffer.from(req.file.buffer)
+    const dataUri = `data:${req.file.mimetype};base64,${buffer.toString('base64')}`
+    const result = await cloudinary.uploader.upload(dataUri, { folder: 'recipe-app' })
+    image = result.secure_url
     }
 
     recipe.title       = title       || recipe.title;
